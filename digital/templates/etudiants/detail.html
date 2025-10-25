@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails de {{ etudiant.prenom }} {{ etudiant.nom }} - EduGest{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-user-graduate text-primary me-2"></i>{{ etudiant.prenom }} {{ etudiant.nom }}
+    </h1>
+    <div>
+        <a href="{% url 'modifier_etudiant' etudiant.id %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-1"></i>Modifier
+        </a>
+        <a href="{% url 'liste_etudiants' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations personnelles -->
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Informations Personnelles
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-circle bg-primary text-white mx-auto mb-3" style="width: 80px; height: 80px; font-size: 24px;">
+                        {{ etudiant.prenom|first|upper }}{{ etudiant.nom|first|upper }}
+                    </div>
+                    <h5>{{ etudiant.prenom }} {{ etudiant.nom }}</h5>
+                    <p class="text-muted">{{ etudiant.numero_matricule }}</p>
+                </div>
+                
+                <p><strong><i class="fas fa-envelope me-2"></i>Email:</strong><br>{{ etudiant.email }}</p>
+                <p><strong><i class="fas fa-users me-2"></i>Classe:</strong><br>{{ etudiant.classe.nom }}</p>
+                <p>
+                    <strong><i class="fas fa-circle me-2"></i>Statut:</strong><br>
+                    <span class="badge {% if etudiant.statut == 'actif' %}bg-success{% elif etudiant.statut == 'inactif' %}bg-secondary{% else %}bg-warning{% endif %}">
+                        {{ etudiant.get_statut_display }}
+                    </span>
+                </p>
+                <p><strong><i class="fas fa-calendar me-2"></i>Inscrit le:</strong><br>{{ etudiant.date_inscription|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes et Présences -->
+    <div class="col-md-8">
+        <!-- Notes -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-star me-2"></i>Notes ({{ notes.count }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if notes %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Cours</th>
+                                <th>Type</th>
+                                <th>Note</th>
+                                <th>Date</th>
+                                <th>Commentaire</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for note in notes %}
+                            <tr>
+                                <td>{{ note.cours.titre }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ note.get_type_evaluation_display }}</span>
+                                </td>
+                                <td>
+                                    <strong class="{% if note.valeur >= 10 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ note.valeur }}/20
+                                    </strong>
+                                </td>
+                                <td>{{ note.date_evaluation|date:"d/m/Y" }}</td>
+                                <td>{{ note.commentaire|truncatewords:5|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune note enregistrée.</p>
+                {% endif %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'ajouter_note' etudiant.id %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus me-1"></i>Ajouter une note
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Présences récentes -->
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clipboard-check me-2"></i>Présences Récentes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if presences %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Cours</th>
+                                <th>Statut</th>
+                                <th>Remarque</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for presence in presences|slice:":10" %}
+                            <tr>
+                                <td>{{ presence.seance.date_seance|date:"d/m/Y H:i" }}</td>
+                                <td>{{ presence.seance.cours.titre }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if presence.statut == 'present' %}bg-success
+                                        {% elif presence.statut == 'absent' %}bg-danger
+                                        {% elif presence.statut == 'retard' %}bg-warning
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ presence.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>{{ presence.remarque|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune présence enregistrée.</p>
+                {% endif %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'suivi_etudiant' etudiant.id %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-chart-line me-1"></i>Voir le suivi complet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

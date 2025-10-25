@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails de {{ classe.nom }} - EduGest{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-users text-primary me-2"></i>{{ classe.nom }}
+    </h1>
+    <a href="{% url 'liste_classes' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Retour
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Informations
+                </h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Niveau:</strong> {{ classe.niveau }}</p>
+                <p><strong>Nombre d'étudiants:</strong> {{ etudiants.count }}</p>
+                <p><strong>Nombre de cours:</strong> {{ cours.count }}</p>
+                <p><strong>Date de création:</strong> {{ classe.date_creation|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Liste des étudiants -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-graduate me-2"></i>Étudiants ({{ etudiants.count }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if etudiants %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for etudiant in etudiants %}
+                            <tr>
+                                <td>{{ etudiant.numero_matricule }}</td>
+                                <td>{{ etudiant.nom }}</td>
+                                <td>{{ etudiant.prenom }}</td>
+                                <td>
+                                    <span class="badge {% if etudiant.statut == 'actif' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ etudiant.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'detail_etudiant' etudiant.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun étudiant dans cette classe.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Liste des cours -->
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-book me-2"></i>Cours ({{ cours.count }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if cours %}
+                <div class="list-group">
+                    {% for cour in cours %}
+                    <a href="{% url 'detail_cours' cour.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ cour.titre }}</h6>
+                            <small>{{ cour.heures_credit }}h</small>
+                        </div>
+                        <p class="mb-1">{{ cour.description|truncatewords:15 }}</p>
+                        <small>Enseignant: {{ cour.enseignant.get_full_name }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun cours pour cette classe.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

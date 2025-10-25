@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Classes - EduGest{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-users me-2"></i>Gestion des Classes
+{% endblock %}
+
+{% block page_subtitle %}
+    Créer et gérer les classes d'étudiants
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Toutes les Classes
+                </h5>
+                <a href="{% url 'creer_classe' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Nouvelle Classe
+                </a>
+            </div>
+            <div class="card-body">
+                {% if classes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nom</th>
+                                <th>Niveau</th>
+                                <th>Nombre d'Étudiants</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for classe in classes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ classe.nom }}</strong>
+                                </td>
+                                <td>{{ classe.niveau }}</td>
+                                <td>
+                                    <span class="badge bg-primary">{{ classe.etudiants.count }}</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4>Aucune classe créée</h4>
+                    <p class="text-muted">Commencez par créer votre première classe.</p>
+                    <a href="{% url 'creer_classe' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Créer une Classe
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-left-primary">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-0">Total Classes</h6>
+                        <h3 class="mb-0">{{ classes|length }}</h3>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-left-success">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-muted mb-0">Étudiants Total</h6>
+                        <h3 class="mb-0">
+                            {% with total=0 %}
+                                {% for classe in classes %}
+                                    {% widthratio classe.etudiants.count 1 1 as count %}
+                                    {% with total=total|add:count %}
+                                    {% endwith %}
+                                {% endfor %}
+                                {{ total }}
+                            {% endwith %}
+                        </h3>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-graduate fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

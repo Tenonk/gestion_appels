@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion des Appels - EduGest{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-clipboard-check me-2"></i>Gestion des Appels
+{% endblock %}
+
+{% block page_subtitle %}
+    Faire l'appel et gérer les présences
+{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Cours</th>
+                        <th>Date & Heure</th>
+                        <th>Lieu</th>
+                        <th>Durée</th>
+                        <th>Appel</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for seance in seances %}
+                    <tr>
+                        <td><strong>{{ seance.cours.titre }}</strong></td>
+                        <td>{{ seance.date_seance }}</td>
+                        <td>{{ seance.lieu }}</td>
+                        <td>{{ seance.duree_minutes }} min</td>
+                        <td>
+                            {% if seance.presences.exists %}
+                            <span class="badge bg-success">Fait</span>
+                            {% else %}
+                            <span class="badge bg-warning">À faire</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-primary">
+                                <i class="fas fa-clipboard-check me-1"></i>Appel
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-2x text-muted mb-3"></i>
+                            <h5>Aucune séance planifiée</h5>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

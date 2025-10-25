@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Cours - EduGest{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-book me-2"></i>Gestion des Cours
+{% endblock %}
+
+{% block page_subtitle %}
+    Organiser et gérer les cours
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% for cour in cours %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">{{ cour.titre }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <strong>Classe:</strong> {{ cour.classe.nom }}<br>
+                    <strong>Enseignant:</strong> {{ cour.enseignant.get_full_name }}<br>
+                    <strong>Crédits:</strong> {{ cour.heures_credit }}h
+                </p>
+                <p class="card-text">{{ cour.description }}</p>
+            </div>
+            <div class="card-footer">
+                <div class="btn-group w-100">
+                    <a href="#" class="btn btn-outline-info btn-sm">Détails</a>
+                    <a href="#" class="btn btn-outline-success btn-sm">Contenu</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+        <h4>Aucun cours créé</h4>
+        <a href="{% url 'creer_cours' %}" class="btn btn-primary">Créer un Cours</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

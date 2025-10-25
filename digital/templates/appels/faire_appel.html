@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Appel - {{ seance.cours.titre }} - EduGest{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-clipboard-check text-primary me-2"></i>Faire l'Appel
+    </h1>
+    <a href="{% url 'liste_seances' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Retour
+    </a>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            {{ seance.cours.titre }} - {{ seance.date_seance|date:"d/m/Y H:i" }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <strong>Classe:</strong> {{ seance.cours.classe.nom }}
+            </div>
+            <div class="col-md-4">
+                <strong>Lieu:</strong> {{ seance.lieu|default:"Non spécifié" }}
+            </div>
+            <div class="col-md-4">
+                <strong>Durée:</strong> {{ seance.duree_minutes }} minutes
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="25%">Étudiant</th>
+                            <th width="15%">Matricule</th>
+                            <th width="20%">Statut</th>
+                            <th width="35%">Remarque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for etudiant in etudiants %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ etudiant.prenom }} {{ etudiant.nom }}</strong>
+                            </td>
+                            <td>{{ etudiant.numero_matricule }}</td>
+                            <td>
+                                <select name="presence_{{ etudiant.id }}" class="form-select form-select-sm statut-select">
+                                    <option value="present" 
+                                        {% if presences|get_item:etudiant.id and presences|get_item:etudiant.id.statut == 'present' %}selected{% endif %}>
+                                        ✅ Présent
+                                    </option>
+                                    <option value="absent"
+                                        {% if not presences|get_item:etudiant.id or presences|get_item:etudiant.id.statut == 'absent' %}selected{% endif %}>
+                                        ❌ Absent
+                                    </option>
+                                    <option value="retard"
+                                        {% if presences|get_item:etudiant.id and presences|get_item:etudiant.id.statut == 'retard' %}selected{% endif %}>
+                                        ⏰ Retard
+                                    </option>
+                                    <option value="justifie"
+                                        {% if presences|get_item:etudiant.id and presences|get_item:etudiant.id.statut == 'justifie' %}selected{% endif %}>
+                                        📝 Justifié
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" name="remarque_{{ etudiant.id }}" 
+                                       class="form-control form-control-sm" 
+                                       placeholder="Remarque optionnelle..."
+                                       value="{{ presences|get_item:etudiant.id.remarque|default:'' }}">
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <i class="fas fa-user-slash fa-2x text-muted mb-3"></i>
+                                <h5>Aucun étudiant dans cette classe</h5>
+                                <p class="text-muted">Ajoutez des étudiants à la classe pour pouvoir faire l'appel.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if etudiants %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save me-1"></i>Enregistrer l'Appel
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<style>
+.statut-select {
+    font-weight: bold;
+}
+.statut-select option[value="present"] {
+    color: #198754;
+}
+.statut-select option[value="absent"] {
+    color: #dc3545;
+}
+.statut-select option[value="retard"] {
+    color: #fd7e14;
+}
+.statut-select option[value="justifie"] {
+    color: #6f42c1;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mise à jour visuelle en temps réel des statuts
+    const selects = document.querySelectorAll('.statut-select');
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            const value = this.value;
+            if (value === 'present') {
+                this.style.backgroundColor = '#d1e7dd';
+                this.style.color = '#0f5132';
+            } else if (value === 'absent') {
+                this.style.backgroundColor = '#f8d7da';
+                this.style.color = '#721c24';
+            } else if (value === 'retard') {
+                this.style.backgroundColor = '#fff3cd';
+                this.style.color = '#856404';
+            } else if (value === 'justifie') {
+                this.style.backgroundColor = '#e2e3e5';
+                this.style.color = '#383d41';
+            }
+        });
+        
+        // Déclencher l'événement pour appliquer les couleurs au chargement
+        select.dispatchEvent(new Event('change'));
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Étudiants - EduGest{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-user-graduate me-2"></i>Gestion des Étudiants
+{% endblock %}
+
+{% block page_subtitle %}
+    Gérer les étudiants et leurs informations
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form class="d-flex">
+            <input type="text" class="form-control me-2" placeholder="Rechercher un étudiant...">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'creer_etudiant' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Nouvel Étudiant
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body">
+                {% if etudiants %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom & Prénom</th>
+                                <th>Classe</th>
+                                <th>Email</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for etudiant in etudiants %}
+                            <tr>
+                                <td><strong>{{ etudiant.numero_matricule }}</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white me-3" style="width: 35px; height: 35px; font-size: 12px;">
+                                            {{ etudiant.prenom|first|upper }}{{ etudiant.nom|first|upper }}
+                                        </div>
+                                        <div>
+                                            {{ etudiant.prenom }} {{ etudiant.nom }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ etudiant.classe.nom }}</td>
+                                <td>{{ etudiant.email }}</td>
+                                <td>
+                                    <span class="badge bg-success">Actif</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-chart-line"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                    <h4>Aucun étudiant enregistré</h4>
+                    <p class="text-muted">Ajoutez vos premiers étudiants pour commencer.</p>
+                    <a href="{% url 'creer_etudiant' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Ajouter un Étudiant
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+</style>
+{% endblock %}
